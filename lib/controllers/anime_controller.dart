@@ -2,22 +2,30 @@ import 'package:flutter/material.dart';
 import '../models/anime_model.dart';
 import '../services/api_service.dart';
 
-class AnimeController with ChangeNotifier {
-  List<AnimeModel> animes = [];
-  bool loading = false;
-  String? error;
+class AnimeController extends ChangeNotifier {
+  final ApiService _apiService = ApiService();
 
-  Future<void> fetch() async {
-    loading = true;
-    error = null;
+  List<AnimeModel> _topAnime = [];
+  List<AnimeModel> get topAnime => _topAnime;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  Future<void> fetchTopAnime() async {
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
+
     try {
-      animes = await ApiService.fetchTopAnime();
+      _topAnime = await _apiService.fetchTopAnime();
     } catch (e) {
-      error = e.toString();
-    } finally {
-      loading = false;
-      notifyListeners();
+      _errorMessage = 'Failed to load data: ${e.toString()}';
     }
+
+    _isLoading = false;
+    notifyListeners();
   }
 }

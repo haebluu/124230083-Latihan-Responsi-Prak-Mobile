@@ -1,19 +1,25 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../models/anime_model.dart';
 
 class ApiService {
-  static const String base = 'https://api.jikan.moe/v4/top/anime';
+  final Dio _dio = Dio();
+  static const String _baseUrl = 'https://api.jikan.moe/v4';
 
-  static Future<List<AnimeModel>> fetchTopAnime() async {
-    final uri = Uri.parse(base);
-    final resp = await http.get(uri);
-    if (resp.statusCode == 200) {
-      final Map<String, dynamic> json = jsonDecode(resp.body);
-      final List data = json['data'] ?? [];
-      return data.map((e) => AnimeModel.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load anime: ${resp.statusCode}');
+  Future<List<AnimeModel>> fetchTopAnime() async {
+    try {
+      final response = await _dio.get('$_baseUrl/top/anime');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data'];
+        return data.map((json) => AnimeModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load top anime');
+      }
+    } on DioException catch (e) {
+      // Handle Dio errors (e.g., network issues)
+      throw Exception('Failed to connect to API: ${e.message}');
+    } catch (e) {
+      // Handle other errors
+      rethrow;
     }
   }
 }

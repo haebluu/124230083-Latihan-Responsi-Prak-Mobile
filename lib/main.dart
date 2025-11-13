@@ -1,96 +1,130 @@
 import 'package:flutter/material.dart';
+import 'package:latres/views/favorites_page.dart';
+import 'package:latres/views/profile_page.dart';
+import 'package:latres/views/register_page.dart';
 import 'package:provider/provider.dart';
-// --- SERVICE IMPORTS ---
 import 'services/hive_service.dart';
-import 'services/shared_pref_service.dart';
-// --- CONTROLLER IMPORTS ---
 import 'controllers/auth_controller.dart';
 import 'controllers/anime_controller.dart';
 import 'controllers/favorite_controller.dart';
 import 'controllers/profile_controller.dart';
-// --- VIEW IMPORTS ---
 import 'views/login_page.dart';
 import 'views/home_page.dart';
-import 'views/register_page.dart';
-
-
-// 1. DEKLARASI TOP-LEVEL/GLOBAL:
-// Deklarasikan instance service yang akan di-inject. Gunakan 'late' karena diinisialisasi di main.
-late final HiveService hiveService; 
-// Anda mungkin juga perlu menginisialisasi service lain di sini
-// late final SharedPrefService sharedPrefService; 
+// ... import views lainnya
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await HiveService().init();
   
-  // 2. INISIALISASI DI DALAM main:
-  hiveService = HiveService();
-  await hiveService.init();
+  // 1. Inisialisasi AuthController dan cek status login di luar runApp
+  final authController = AuthController();
+  await authController.checkLoginStatus(); 
   
-  // Asumsi SharedPrefService.init() sudah memadai
-  await SharedPrefService.init(); 
-
-  runApp(const MyApp());
+  runApp(MyApp(authController: authController));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AuthController authController;
+
+  const MyApp({Key? key, required this.authController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // 2. MultiProvider untuk menyediakan semua controllers
     return MultiProvider(
       providers: [
-        // 3. INJEKSI: Variabel global/top-level 'hiveService' sudah dapat diakses.
+        // a. AuthController: Menggunakan .value karena sudah diinisialisasi di atas
+        ChangeNotifierProvider.value(value: authController), 
+        
+        // b. AnimeController: Fetch data saat inisialisasi
         ChangeNotifierProvider(
-          // Asumsi AuthController butuh SharedPrefService juga
-          create: (_) => AuthController(hiveService), 
-        ), 
-        ChangeNotifierProvider(create: (_) => AnimeController()),
-        ChangeNotifierProvider(create: (_) => FavoriteController()),
-        ChangeNotifierProvider(create: (_) => ProfileController()),
+          create: (_) => AnimeController()..fetchTopAnime(),
+        ),
+        
+        // c. FavoriteController: Load data saat inisialisasi
+        ChangeNotifierProvider(
+          create: (_) => FavoriteController()..loadFavorites(),
+        ),
+        
+        // d. ProfileController: Load data statis/image path saat inisialisasi
+        ChangeNotifierProvider(
+          create: (_) => ProfileController()..loadProfileImage(),
+        ),
       ],
       child: MaterialApp(
-        title: 'Latihan Responsi Mobile',
-        theme: ThemeData(primarySwatch: Colors.indigo),
-        // Gunakan named routes
-        initialRoute: '/', 
+        title: 'MyAnimeArchive',
+        theme: ThemeData(
+          primarySwatch: Colors.deepPurple,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        // 3. Consumer untuk menentukan halaman awal (Login atau Home)
+        home: Consumer<AuthController>(
+          builder: (context, auth, child) {
+            if (auth.currentUsername != null) {
+              return const MainWrapper(); // Jika ada session
+            }
+            return const LoginPage(); // Jika tidak ada session
+          },
+        ),
         routes: {
-          '/': (ctx) => const RootDecider(),
-          '/login': (ctx) =>  LoginPage(),
-          '/register': (ctx) =>  RegisterPage(),
-          '/home': (ctx) =>  HomePage(),
+          '/login': (context) => const LoginPage(),
+          '/register': (context) => const RegisterPage(),
+          '/home': (context) => const MainWrapper(),
         },
       ),
     );
   }
 }
 
-/// Decide to go to login or home based on session
-class RootDecider extends StatelessWidget {
-  const RootDecider({super.key});
+// ... (Definisi MainWrapper tetap sama, berisi Home, Favorites, Profile)
+// Wrapper untuk Bottom Navigation Bar (Home, Favorite, Profile)
+class MainWrapper extends StatefulWidget {
+  const MainWrapper({super.key});
+
+  @override
+  State<MainWrapper> createState() => _MainWrapperState();
+}
+
+class _MainWrapperState extends State<MainWrapper> {
+  int _selectedIndex = 0;
+  
+  static const List<Widget> _widgetOptions = <Widget>[
+    HomePage(),
+    FavoritesPage(),
+    ProfilePage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Gunakan listen: false pada Provider karena kita hanya memicu Future
-    final auth = Provider.of<AuthController>(context, listen: false); 
-    
-    // FutureBuilder akan menampilkan loading saat mencoba auto-login
-    return FutureBuilder<bool>(
-      future: auth.tryAutoLogin(),
-      builder: (context, snap) {
-        if (snap.connectionState != ConnectionState.done) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        }
-        
-        // Setelah selesai, navigasi menggunakan named routes
-        if (snap.data == true) {
-          // Jika auto-login sukses, langsung ke home
-          return  HomePage(); 
-        } else {
-          // Jika gagal/tidak ada sesi, ke login
-          return  LoginPage();
-        }
-      },
+    return Scaffold(
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorite',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.deepPurple,
+        onTap: _onItemTapped,
+      ),
     );
   }
 }

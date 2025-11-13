@@ -3,137 +3,103 @@ import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _form = GlobalKey<FormState>();
-  String username = '', password = '', name = '', nim = '';
-  bool loading = false;
-  String? message;
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  void _register() async {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      _showSnackBar('Please fill in all fields.', Colors.red);
+      return;
+    }
+
+    final authController = Provider.of<AuthController>(context, listen: false);
+    final error = await authController.register(username, password);
+
+    if (error == null) {
+      _showSnackBar('Registration Successful!', Colors.green);
+      // Arahkan ke halaman login
+      if (mounted) {
+        Navigator.pop(context); 
+      }
+    } else {
+      _showSnackBar(error, Colors.red);
+    }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthController>(context, listen: false);
     return Scaffold(
-      backgroundColor: Colors.purple.shade50,
       appBar: AppBar(
         title: const Text('Register'),
-        backgroundColor: Colors.purple.shade200,
+        backgroundColor: Colors.deepPurple,
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _form,
-            child: Column(
-              children: [
-                const Text(
-                  'MyAnimeArchive',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
-                  ),
-                  onSaved: (v) => username = v?.trim() ?? '',
-                  validator: (v) => (v == null || v.isEmpty) ? 'Masukkan username' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  onSaved: (v) => password = v ?? '',
-                  validator: (v) => (v == null || v.isEmpty) ? 'Masukkan password' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Nama (opsional)',
-                    border: OutlineInputBorder(),
-                  ),
-                  onSaved: (v) => name = v ?? '',
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'NIM (opsional)',
-                    border: OutlineInputBorder(),
-                  ),
-                  onSaved: (v) => nim = v ?? '',
-                ),
-                const SizedBox(height: 24),
-                if (message != null)
-                  Text(message!, style: const TextStyle(color: Colors.red)),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF7B42F6), // Ungu tua
-                        Color(0xFFB01EFF), // Ungu muda ke pink
-                      ],
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(30),
-                      onTap: loading
-                          ? null
-                          : () async {
-                              if (!_form.currentState!.validate()) return;
-                              _form.currentState!.save();
-                              setState(() => loading = true);
-                              final ok = await auth.register(username, password,);
-                              setState(() => loading = false);
-                              if (ok) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Register berhasil! Silakan login.')),
-                                );
-                                Navigator.pushReplacementNamed(context, '/login');
-                              } else {
-                                setState(() => message = 'Username sudah digunakan');
-                              }
-                            },
-                      child: Center(
-                        child: loading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                'Register',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-
-
-                TextButton(
-                  onPressed: () =>
-                      Navigator.pushReplacementNamed(context, '/login'),
-                  child: const Text('Sudah punya akun? Login'),
-                ),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            //  // Optional: for visual reference
+            const Text(
+              'Create a New Account',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.deepPurple),
             ),
-          ),
+            const SizedBox(height: 40),
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            // Field form register dibebaskan praktikan, bisa ditambahkan field lain di sini
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _register,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Register',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

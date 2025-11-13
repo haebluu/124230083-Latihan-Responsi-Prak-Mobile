@@ -1,6 +1,4 @@
-// lib/views/profile_page.dart (Revisi: Nama/NIM dari ProfileController, Username dari AuthController)
-
-import 'dart:convert';
+// ... (Bagian import)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';
@@ -11,77 +9,96 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Dengarkan perubahan dari AuthController (untuk sesi user)
-    final auth = Provider.of<AuthController>(context);
-    // Dengarkan perubahan dari ProfileController (untuk foto, nama, nim hardcode)
-    final profile = Provider.of<ProfileController>(context);
-
-    // Dapatkan model user yang sedang login untuk Username
-    // Catatan: Asumsi auth.getUserModel() mengembalikan UserModel? atau sejenisnya
-    final user = auth.getUserModel(); 
-
-    // Fungsi untuk menampilkan avatar/foto
-    Widget avatar() {
-      if (profile.photoBase64.isNotEmpty) {
-        try {
-          final bytes = base64Decode(profile.photoBase64);
-          return CircleAvatar(radius: 50, backgroundImage: MemoryImage(bytes));
-        } catch (_) {
-          // Jika decode gagal
-          return const CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50));
-        }
-      }
-      // Avatar default jika tidak ada foto
-      return const CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50));
-    }
+    final authController = Provider.of<AuthController>(context);
+    final profileController = Provider.of<ProfileController>(context);
 
     return Scaffold(
-      
-      body: Center(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        backgroundColor: Colors.deepPurple,
+      ),
+      // Gunakan SingleChildScrollView di sini
+      body: SingleChildScrollView( 
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              avatar(),
-              const SizedBox(height: 16),
-              
-              // Tampilkan Nama dari ProfileController (hardcode)
-              Text(profile.name,
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
-              const SizedBox(height: 4),
-              
-              // Tampilkan NIM dari ProfileController (hardcode)
-              Text(profile.nim,
-                  style: const TextStyle(fontSize: 16, color: Colors.black)),
-              const SizedBox(height: 4),
-              
-              // Tampilkan Username dari AuthController (dinamis/sesi)
-              Text('Logged in as: ${user?.username ?? '-'}',
-                  style: const TextStyle(color: Colors.black)),
-              const SizedBox(height: 32),
-              
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  minimumSize: const Size(double.infinity, 48),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24)),
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              // --- Gambar Profil Hardcode ---
+              CircleAvatar(
+                radius: 70,
+                backgroundColor: Colors.deepPurple.shade100,
+                // Menggunakan Image.asset sebagai child agar placeholder tetap terlihat
+                child: Image.asset(
+                  profileController.imageAssetPath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.person, size: 50, color: Colors.deepPurple),
                 ),
-                onPressed: () async {
-                  // Asumsi logout di AuthController
-                  await auth.logout();
-                  Navigator.pushReplacementNamed(context, '/login'); // Logout perlu context untuk navigasi Navigator
-                  // Asumsi navigasi diurus di dalam auth.logout() atau gunakan Navigator standar:
-                  // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage())); 
-                },
-                child: const Text('Logout',
-                    style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
+              const SizedBox(height: 30),
+              
+              // --- Data User ---
+              _buildProfileInfo('Nama', profileController.staticName),
+              _buildProfileInfo('NIM', profileController.staticNim),
+              _buildProfileInfo('Logged in as',
+                  authController.currentUsername ?? 'N/A'),
+                  
+              // Ganti Spacer() dengan jarak yang cukup
+              const SizedBox(height: 50), 
+
+              // --- Tombol Logout ---
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await authController.logout();
+                    if (context.mounted) {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/login', (route) => false);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20), // Memberikan sedikit ruang di bawah
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // ... (Widget _buildProfileInfo tetap sama)
+  Widget _buildProfileInfo(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+                fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 18, color: Colors.black),
+          ),
+          const Divider(),
+        ],
       ),
     );
   }

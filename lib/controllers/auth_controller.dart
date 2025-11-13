@@ -1,68 +1,55 @@
-// lib/controllers/auth_controller.dart
-
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/hive_service.dart';
-import '../services/shared_pref_service.dart'; // Asumsi SharedPrefService sudah benar
+import '../services/shared_pref_service.dart';
 
-class AuthController with ChangeNotifier {
-  // Dependency Injection untuk HiveService
-  final HiveService _hiveService;
-  
-  // Data Statis untuk Registrasi
-  static const String HARDCODE_NAME = 'Gwejh';
-  static const String HARDCODE_NIM = '123220000';
+class AuthController extends ChangeNotifier {
+  final HiveService _hiveService = HiveService();
+  final SharedPrefService _sharedPrefService = SharedPrefService();
 
-  String? currentUsername;
+  String? _currentUsername;
+  String? get currentUsername => _currentUsername;
 
-  AuthController(this._hiveService); // Constructor menerima HiveService
-
-  Future<bool> register(String username, String password) async {
-    if (_hiveService.userExists(username)) return false;
-    
-    // Menggunakan nilai hardcode untuk Nama dan NIM saat user register
-    final user = UserModel(
-      username: username, 
-      password: password,
-      name: HARDCODE_NAME,
-      nim: HARDCODE_NIM,
-      photoBase64: null, // Initial photo is null
-    );
-    await _hiveService.registerUser(user);
-    return true;
-  }
-
-  Future<bool> login(String username, String password) async {
-    final user = _hiveService.getUser(username);
-    if (user == null) return false;
-    if (user.password == password) {
-      currentUsername = username;
-      await SharedPrefService.saveSession(username);
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  Future<bool> tryAutoLogin() async {
-    // SharedPrefService.getSession() harus mengembalikan Future<String?>
-    final session = await SharedPrefService.getSession(); 
-    if (session != null) {
-      currentUsername = session;
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  Future<void> logout() async {
-    currentUsername = null;
-    await SharedPrefService.clearSession();
+  // 1. Cek Session Login
+  Future<void> checkLoginStatus() async {
+    _currentUsername = await _sharedPrefService.getSession();
     notifyListeners();
   }
 
-  UserModel? getUserModel() {
-    if (currentUsername == null) return null;
-    return _hiveService.getUser(currentUsername!); // Menggunakan _hiveService
+  // 2. Register
+  Future<String?> register(String username, String password) async {
+    final existingUser = await _hiveService.getUser(username);
+    if (existingUser != null) {
+      return 'Username already exists.';
+    }
+
+    final newUser = UserModel(username: username, password: password);
+    await _hiveService.saveUser(newUser);
+    return null; // Success
+  }
+
+  // 3. Login
+  Future<String?> login(String username, String password) async {
+    final user = await _hiveService.getUser(username);
+
+    if (user == null) {
+      return 'Username not found.';
+    }
+
+    if (user.password != password) {
+      return 'Incorrect password.';
+    }
+
+    await _sharedPrefService.saveSession(username);
+    _currentUsername = username;
+    notifyListeners();
+    return null; // Success
+  }
+
+  // 4. Logout
+  Future<void> logout() async {
+    await _sharedPrefService.deleteSession();
+    _currentUsername = null;
+    notifyListeners();
   }
 }

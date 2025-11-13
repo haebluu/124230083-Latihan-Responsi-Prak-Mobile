@@ -1,34 +1,26 @@
-// lib/controllers/profile_controller.dart (Revisi untuk hardcode Nama & NIM)
-
 import 'package:flutter/material.dart';
-import '../services/shared_pref_service.dart';
+// import 'package:image_picker/image_picker.dart'; <-- Dihilangkan
+// import '../services/shared_pref_service.dart'; <-- Dihilangkan
 
-class ProfileController with ChangeNotifier {
-  // --- Data Hardcode ---
-  String name = 'Gwejh'; // Hardcode Nama
-  String nim = '123220000'; // Hardcode NIM
-  // ---------------------
+class ProfileController extends ChangeNotifier {
+  // final SharedPrefService _sharedPrefService = SharedPrefService(); <-- Dihilangkan
+  // final ImagePicker _picker = ImagePicker(); <-- Dihilangkan
 
-  String photoBase64 = ''; // optional stored profile photo
+  // Ganti path image dengan placeholder asset path
+  // Anda harus menyediakan gambar di folder assets/
+  final String _imageAssetPath = 'assets/default_profile.png'; 
+  String get imageAssetPath => _imageAssetPath;
 
-  ProfileController() {
-    _loadProfilePhoto();
+  // Data statis untuk contoh (sesuai soal)
+  final String _staticName = 'Gwejh';
+  final String _staticNim = '123220000';
+  String get staticName => _staticName;
+  String get staticNim => _staticNim;
+
+  // Metode-metode yang berhubungan dengan gambar dihapus/disederhanakan
+  Future<void> loadProfileImage() async {
+    // Tidak perlu load dari Shared Preferences
   }
 
-  // Mengubah pemuatan foto menjadi Future/Async
-  Future<void> _loadProfilePhoto() async {
-    // Asumsi getProfilePhoto() ada di SharedPrefService dan mengembalikan String?
-    final p = await SharedPrefService.getProfilePhoto(); 
-    if (p != null && p.isNotEmpty) {
-      photoBase64 = p;
-      notifyListeners();
-    }
-  }
-
-  Future<void> setPhoto(String base64) async {
-    photoBase64 = base64;
-    // Asumsi saveProfilePhoto() ada di SharedPrefService
-    await SharedPrefService.saveProfilePhoto(base64);
-    notifyListeners();
-  }
+  // Future<void> pickImage(ImageSource source) async { } <-- Dihilangkan
 }

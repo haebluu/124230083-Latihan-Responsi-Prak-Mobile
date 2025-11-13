@@ -1,130 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';
+import 'home_page.dart'; // Arahkan ke MainWrapper
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _form = GlobalKey<FormState>();
-  String username = '', password = '';
-  bool loading = false;
-  String? message;
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  void _login() async {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      _showSnackBar('Please enter username and password.', Colors.red);
+      return;
+    }
+
+    final authController = Provider.of<AuthController>(context, listen: false);
+    final error = await authController.login(username, password);
+
+    if (error == null) {
+      _showSnackBar('Login Successful!', Colors.green);
+      // Arahkan ke MainWrapper
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } else {
+      _showSnackBar(error, Colors.red);
+    }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthController>(context, listen: false);
-
     return Scaffold(
-      backgroundColor: Colors.purple.shade50,
-      appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: Colors.purple.shade200,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _form,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'MyAnime',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
-                  ),
-                  onSaved: (v) => username = v?.trim() ?? '',
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Masukkan username' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  onSaved: (v) => password = v ?? '',
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Masukkan password' : null,
-                ),
-                const SizedBox(height: 24),
-                if (message != null)
-                  Text(message!, style: const TextStyle(color: Colors.red)),
-                const SizedBox(height: 8),
-
-                // ✅ Tombol gradient + logic login dikembalikan
-                Container(
-                  width: double.infinity,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7B42F6), Color(0xFFB01EFF)],
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(30),
-                      onTap: loading
-                          ? null
-                          : () async {
-                              if (!_form.currentState!.validate()) return;
-                              _form.currentState!.save();
-
-                              setState(() {
-                                loading = true;
-                                message = null;
-                              });
-
-                              final ok = await auth.login(username, password);
-                              setState(() => loading = false);
-
-                              if (ok) {
-                                Navigator.pushReplacementNamed(context, '/home');
-                              } else {
-                                setState(() =>
-                                    message = 'Username atau password salah');
-                              }
-                            },
-                      child: Center(
-                        child: loading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                'Login',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () =>
-                      Navigator.pushReplacementNamed(context, '/register'),
-                  child: const Text('Belum punya akun? Register'),
-                ),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            //  // Optional: for visual reference
+            const Text(
+              'MyAnimeArchive',
+              style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple),
             ),
-          ),
+            const SizedBox(height: 50),
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/register');
+              },
+              child: const Text(
+                'Belum punya akun? Register.',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
+            ),
+          ],
         ),
       ),
     );

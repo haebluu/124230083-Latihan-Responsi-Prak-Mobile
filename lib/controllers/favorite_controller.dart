@@ -1,37 +1,41 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/anime_model.dart';
 import '../services/shared_pref_service.dart';
 
-class FavoriteController with ChangeNotifier {
-  List<AnimeModel> favorites = [];
+class FavoriteController extends ChangeNotifier {
+  final SharedPrefService _sharedPrefService = SharedPrefService();
 
-  FavoriteController() {
-    load();
-  }
+  List<AnimeModel> _favorites = [];
+  List<AnimeModel> get favorites => _favorites;
 
-  void load() {
-    favorites = SharedPrefService.getFavorites();
+  Future<void> loadFavorites() async {
+    final favoritesJson = await _sharedPrefService.getFavorites();
+    // Menggunakan fromMap
+    _favorites = favoritesJson
+        .map((e) => AnimeModel.fromMap(jsonDecode(e) as Map<String, dynamic>))
+        .toList();
     notifyListeners();
   }
 
-  bool isFavorite(AnimeModel a) {
-    return favorites.any((f) => f.malId == a.malId);
+  bool isFavorite(int malId) {
+    return _favorites.any((anime) => anime.malId == malId);
   }
 
-  Future<void> toggleFavorite(AnimeModel a) async {
-    final exists = isFavorite(a);
-    if (exists) {
-      favorites.removeWhere((f) => f.malId == a.malId);
+  Future<void> toggleFavorite(AnimeModel anime) async {
+    if (isFavorite(anime.malId)) {
+      _favorites.removeWhere((item) => item.malId == anime.malId);
     } else {
-      favorites.add(a);
+      _favorites.add(anime);
     }
-    await SharedPrefService.saveFavorites(favorites);
+
+    await _saveFavorites();
     notifyListeners();
   }
 
-  Future<void> remove(AnimeModel a) async {
-    favorites.removeWhere((f) => f.malId == a.malId);
-    await SharedPrefService.saveFavorites(favorites);
-    notifyListeners();
+  Future<void> _saveFavorites() async {
+    // Menggunakan toMap
+    final favoritesJson = _favorites.map((e) => jsonEncode(e.toMap())).toList();
+    await _sharedPrefService.saveFavorites(favoritesJson);
   }
 }
