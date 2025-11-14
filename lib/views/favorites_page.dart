@@ -15,7 +15,7 @@ class FavoritesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Favorites'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color.fromRGBO(206, 1, 88, 1),
       ),
       body: favoriteController.favorites.isEmpty
           ? const Center(

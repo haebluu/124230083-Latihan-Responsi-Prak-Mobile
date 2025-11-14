@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:latres/views/favorites_page.dart';
-import 'package:latres/views/profile_page.dart';
 import 'package:latres/views/register_page.dart';
 import 'package:provider/provider.dart';
 import 'services/hive_service.dart';
@@ -9,61 +7,70 @@ import 'controllers/anime_controller.dart';
 import 'controllers/favorite_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'views/login_page.dart';
+import 'views/favorites_page.dart';
+import 'views/profile_page.dart';
 import 'views/home_page.dart';
-// ... import views lainnya
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HiveService().init();
   
-  // 1. Inisialisasi AuthController dan cek status login di luar runApp
-  final authController = AuthController();
-  await authController.checkLoginStatus(); 
-  
-  runApp(MyApp(authController: authController));
+  // AuthController tidak lagi diinisialisasi di luar
+  runApp(const MyApp()); 
 }
 
 class MyApp extends StatelessWidget {
-  final AuthController authController;
-
-  const MyApp({Key? key, required this.authController}) : super(key: key);
+  // Konstruktor diubah, tidak lagi membutuhkan authController
+  const MyApp({super.key}); 
 
   @override
   Widget build(BuildContext context) {
-    // 2. MultiProvider untuk menyediakan semua controllers
     return MultiProvider(
       providers: [
-        // a. AuthController: Menggunakan .value karena sudah diinisialisasi di atas
-        ChangeNotifierProvider.value(value: authController), 
-        
-        // b. AnimeController: Fetch data saat inisialisasi
+        // AuthController dibuat di sini dan memanggil checkLoginStatus()
+        ChangeNotifierProvider(
+          create: (_) => AuthController()..checkLoginStatus(),
+        ), 
         ChangeNotifierProvider(
           create: (_) => AnimeController()..fetchTopAnime(),
         ),
-        
-        // c. FavoriteController: Load data saat inisialisasi
         ChangeNotifierProvider(
           create: (_) => FavoriteController()..loadFavorites(),
         ),
-        
-        // d. ProfileController: Load data statis/image path saat inisialisasi
         ChangeNotifierProvider(
           create: (_) => ProfileController()..loadProfileImage(),
         ),
       ],
       child: MaterialApp(
-        title: 'MyAnimeArchive',
+        title: 'MyAnime',
         theme: ThemeData(
           primarySwatch: Colors.deepPurple,
           visualDensity: VisualDensity.adaptivePlatformDensity,
+
+          appBarTheme: const AppBarTheme(
+            // Mengatur font size dan weight untuk semua AppBar title
+            titleTextStyle: TextStyle(
+              color: Colors.white,
+              fontSize: 18, // Ukuran font diperbesar
+              fontWeight: FontWeight.bold, // Gaya font diubah menjadi Bold
+              //fontFamily: 'Roboto', 
+            ),
+            iconTheme: IconThemeData(
+              color: Colors.white,
+            ),
+            // Mengatur warna latar belakang AppBar
+            backgroundColor: Color.fromRGBO(206, 1, 88, 1), 
+          ),
+
         ),
-        // 3. Consumer untuk menentukan halaman awal (Login atau Home)
         home: Consumer<AuthController>(
           builder: (context, auth, child) {
-            if (auth.currentUsername != null) {
-              return const MainWrapper(); // Jika ada session
+            // Jika statusnya null, tampilkan LoginPage (default)
+            if (auth.currentUsername == null) {
+              return const LoginPage(); 
             }
-            return const LoginPage(); // Jika tidak ada session
+            // Jika ada session, tampilkan MainWrapper
+            return const MainWrapper();
           },
         ),
         routes: {
@@ -76,8 +83,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ... (Definisi MainWrapper tetap sama, berisi Home, Favorites, Profile)
-// Wrapper untuk Bottom Navigation Bar (Home, Favorite, Profile)
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
 
@@ -122,7 +127,7 @@ class _MainWrapperState extends State<MainWrapper> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.deepPurple,
+        selectedItemColor: Color.fromRGBO(206, 1, 88, 1),
         onTap: _onItemTapped,
       ),
     );

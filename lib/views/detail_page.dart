@@ -17,7 +17,7 @@ class DetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(anime.title),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color.fromRGBO(206, 1, 88, 1),
         actions: [
           IconButton(
             icon: Icon(
@@ -41,7 +41,7 @@ class DetailPage extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             // --- Poster dan Judul ---
             Center(
@@ -70,18 +70,21 @@ class DetailPage extends StatelessWidget {
             const SizedBox(height: 10),
 
             // --- Score ---
-            Row(
-              children: [
-                const Icon(Icons.star, color: Colors.amber, size: 20),
-                const SizedBox(width: 5),
-                Text(
-                  'Score: ${anime.score.toStringAsFixed(2)}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
+            Center( 
+              child: Row(
+                mainAxisSize: MainAxisSize.min, 
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 26),
+                  const SizedBox(width: 5),
+                  Text(
+                    ' ${anime.score.toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ), // <-- Tutup Center di sini
             const SizedBox(height: 20),
-            
+
             // --- Detail Tambahan ---
             const Text(
               'Information',
@@ -94,10 +97,6 @@ class DetailPage extends StatelessWidget {
             _buildInfoRow('Status', anime.status),
             _buildInfoRow('Year', anime.year?.toString()),
             _buildInfoRow('Genres', anime.genres.join(', ')),
-
-            // --- Trailer ---
-            // Bagian trailer dihilangkan
-            // if (anime.trailerUrl != null && anime.trailerUrl!.isNotEmpty) ...
 
             const SizedBox(height: 20),
 

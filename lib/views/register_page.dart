@@ -51,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Register'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color.fromRGBO(206, 1, 88, 1),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -61,7 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
             //  // Optional: for visual reference
             const Text(
               'Create a New Account',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color.fromRGBO(206, 1, 88, 1)),
             ),
             const SizedBox(height: 40),
             TextField(
@@ -88,7 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: ElevatedButton(
                 onPressed: _register,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: Color.fromRGBO(206, 1, 88, 1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),

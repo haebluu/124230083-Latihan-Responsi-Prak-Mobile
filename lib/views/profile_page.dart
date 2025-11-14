@@ -15,7 +15,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color.fromRGBO(206, 1, 88, 1),
       ),
       // Gunakan SingleChildScrollView di sini
       body: SingleChildScrollView( 
@@ -25,17 +25,15 @@ class ProfilePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              // --- Gambar Profil Hardcode ---
+              // --- Gambar Profil ---
               CircleAvatar(
                 radius: 70,
                 backgroundColor: Colors.deepPurple.shade100,
-                // Menggunakan Image.asset sebagai child agar placeholder tetap terlihat
-                child: Image.asset(
-                  profileController.imageAssetPath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.person, size: 50, color: Colors.deepPurple),
-                ),
+                backgroundImage: AssetImage(profileController.imageAssetPath),
+                
+                child: profileController.imageAssetPath.isEmpty 
+                    ? const Icon(Icons.person, size: 50, color: Colors.white)
+                    : null, 
               ),
               const SizedBox(height: 30),
               

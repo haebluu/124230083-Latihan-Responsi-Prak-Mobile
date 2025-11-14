@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';
-import 'home_page.dart'; // Arahkan ke MainWrapper
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -57,11 +56,11 @@ class _LoginPageState extends State<LoginPage> {
           children: <Widget>[
             //  // Optional: for visual reference
             const Text(
-              'MyAnimeArchive',
+              'MyAnime',
               style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple),
+                  color: Color.fromRGBO(206, 1, 88, 1)),
             ),
             const SizedBox(height: 50),
             TextField(
@@ -87,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
               child: ElevatedButton(
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: Color.fromRGBO(206, 1, 88, 1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -105,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: const Text(
                 'Belum punya akun? Register.',
-                style: TextStyle(color: Colors.deepPurple),
+                style: TextStyle(color: Color.fromRGBO(206, 1, 88, 1)),
               ),
             ),
           ],
