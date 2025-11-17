@@ -65,10 +65,9 @@ class HomePage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                                // Hapus Expanded pada detail teks agar Column menyusut
                                 children: <Widget>[
-                                  // 1. Gambar Poster
-                                  Expanded( // Tetap Expanded agar gambar mengambil sisa ruang flex: 4
+                                  // Gambar Poster
+                                  Expanded( 
                                     flex: 4, 
                                     child: ClipRRect(
                                         borderRadius: const BorderRadius.only(
@@ -85,7 +84,7 @@ class HomePage extends StatelessWidget {
                                     ),
                                   ),
 
-                                  // 2. Detail Anime (Ganti Expanded dengan Container/Padding)
+                                  // Detail Anime 
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0), 
                                     child: Column(
@@ -106,7 +105,6 @@ class HomePage extends StatelessWidget {
                                             const SizedBox(width: 4),
                                             Text(anime.score.toStringAsFixed(2), style: const TextStyle(fontSize: 12)),
                                             const Spacer(),
-                                            // Tombol Favorite
                                             GestureDetector( 
                                               onTap: () {
                                                 favoriteController.toggleFavorite(anime);
@@ -128,7 +126,6 @@ class HomePage extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                  // TIDAK ADA Expanded/Spacer di sini
                                 ],
                               ),
                             ),

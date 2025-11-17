@@ -27,7 +27,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (error == null) {
       _showSnackBar('Registration Successful!', Colors.green);
-      // Arahkan ke halaman login
       if (mounted) {
         Navigator.pop(context); 
       }
@@ -58,7 +57,6 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            //  // Optional: for visual reference
             const Text(
               'Create a New Account',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color.fromRGBO(206, 1, 88, 1)),
@@ -80,7 +78,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 border: OutlineInputBorder(),
               ),
             ),
-            // Field form register dibebaskan praktikan, bisa ditambahkan field lain di sini
+            // bisa ditambahkan field lain di sini
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,

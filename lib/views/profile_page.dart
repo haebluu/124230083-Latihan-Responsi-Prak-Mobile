@@ -17,7 +17,6 @@ class ProfilePage extends StatelessWidget {
         title: const Text('Profile'),
         backgroundColor: Color.fromRGBO(206, 1, 88, 1),
       ),
-      // Gunakan SingleChildScrollView di sini
       body: SingleChildScrollView( 
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -25,7 +24,6 @@ class ProfilePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              // --- Gambar Profil ---
               CircleAvatar(
                 radius: 70,
                 backgroundColor: Colors.deepPurple.shade100,
@@ -37,16 +35,13 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               
-              // --- Data User ---
               _buildProfileInfo('Nama', profileController.staticName),
               _buildProfileInfo('NIM', profileController.staticNim),
               _buildProfileInfo('Logged in as',
                   authController.currentUsername ?? 'N/A'),
                   
-              // Ganti Spacer() dengan jarak yang cukup
               const SizedBox(height: 50), 
 
-              // --- Tombol Logout ---
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -78,7 +73,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // ... (Widget _buildProfileInfo tetap sama)
   Widget _buildProfileInfo(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),

@@ -10,13 +10,13 @@ class AuthController extends ChangeNotifier {
   String? _currentUsername;
   String? get currentUsername => _currentUsername;
 
-  // 1. Cek Session Login
+  // Cek Session Login
   Future<void> checkLoginStatus() async {
     _currentUsername = await _sharedPrefService.getSession();
     notifyListeners();
   }
 
-  // 2. Register
+  // Register
   Future<String?> register(String username, String password) async {
     final existingUser = await _hiveService.getUser(username);
     if (existingUser != null) {
@@ -28,7 +28,7 @@ class AuthController extends ChangeNotifier {
     return null; // Success
   }
 
-  // 3. Login
+  // Login
   Future<String?> login(String username, String password) async {
     final user = await _hiveService.getUser(username);
 
@@ -46,7 +46,7 @@ class AuthController extends ChangeNotifier {
     return null; // Success
   }
 
-  // 4. Logout
+  // Logout
   Future<void> logout() async {
     await _sharedPrefService.deleteSession();
     _currentUsername = null;

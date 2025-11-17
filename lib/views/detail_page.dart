@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/anime_model.dart';
 import '../controllers/favorite_controller.dart';
-// import 'package:url_launcher/url_launcher.dart'; <-- Dihilangkan
 
 class DetailPage extends StatelessWidget {
   final AnimeModel anime;
@@ -82,7 +81,7 @@ class DetailPage extends StatelessWidget {
                   ),
                 ],
               ),
-            ), // <-- Tutup Center di sini
+            ), 
             const SizedBox(height: 20),
 
             // --- Detail Tambahan ---

@@ -11,7 +11,6 @@ class FavoriteController extends ChangeNotifier {
 
   Future<void> loadFavorites() async {
     final favoritesJson = await _sharedPrefService.getFavorites();
-    // Menggunakan fromMap
     _favorites = favoritesJson
         .map((e) => AnimeModel.fromMap(jsonDecode(e) as Map<String, dynamic>))
         .toList();
@@ -34,7 +33,6 @@ class FavoriteController extends ChangeNotifier {
   }
 
   Future<void> _saveFavorites() async {
-    // Menggunakan toMap
     final favoritesJson = _favorites.map((e) => jsonEncode(e.toMap())).toList();
     await _sharedPrefService.saveFavorites(favoritesJson);
   }

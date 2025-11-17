@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../controllers/favorite_controller.dart';
 import 'detail_page.dart';
-// ... (Bagian import)
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
@@ -30,7 +29,7 @@ class FavoritesPage extends StatelessWidget {
                 final anime = favoriteController.favorites[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                  child: Card( // <--- Tambahkan Card di sini
+                  child: Card( 
                     elevation: 3,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

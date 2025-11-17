@@ -15,19 +15,16 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HiveService().init();
   
-  // AuthController tidak lagi diinisialisasi di luar
   runApp(const MyApp()); 
 }
 
 class MyApp extends StatelessWidget {
-  // Konstruktor diubah, tidak lagi membutuhkan authController
   const MyApp({super.key}); 
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // AuthController dibuat di sini dan memanggil checkLoginStatus()
         ChangeNotifierProvider(
           create: (_) => AuthController()..checkLoginStatus(),
         ), 
@@ -48,28 +45,23 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
 
           appBarTheme: const AppBarTheme(
-            // Mengatur font size dan weight untuk semua AppBar title
             titleTextStyle: TextStyle(
               color: Colors.white,
-              fontSize: 18, // Ukuran font diperbesar
-              fontWeight: FontWeight.bold, // Gaya font diubah menjadi Bold
-              //fontFamily: 'Roboto', 
+              fontSize: 18, 
+              fontWeight: FontWeight.bold, 
             ),
             iconTheme: IconThemeData(
               color: Colors.white,
             ),
-            // Mengatur warna latar belakang AppBar
             backgroundColor: Color.fromRGBO(206, 1, 88, 1), 
           ),
 
         ),
         home: Consumer<AuthController>(
           builder: (context, auth, child) {
-            // Jika statusnya null, tampilkan LoginPage (default)
             if (auth.currentUsername == null) {
               return const LoginPage(); 
             }
-            // Jika ada session, tampilkan MainWrapper
             return const MainWrapper();
           },
         ),

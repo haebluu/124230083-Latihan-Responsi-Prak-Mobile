@@ -15,10 +15,8 @@ class ApiService {
         throw Exception('Failed to load top anime');
       }
     } on DioException catch (e) {
-      // Handle Dio errors (e.g., network issues)
       throw Exception('Failed to connect to API: ${e.message}');
     } catch (e) {
-      // Handle other errors
       rethrow;
     }
   }

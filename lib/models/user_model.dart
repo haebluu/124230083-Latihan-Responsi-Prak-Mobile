@@ -1,9 +1,9 @@
 
 import 'package:hive/hive.dart';
 
-part 'user_model.g.dart'; // Wajib: Jalankan build runner
+part 'user_model.g.dart'; 
 
-@HiveType(typeId: 0) // Wajib: Beri ID unik
+@HiveType(typeId: 0) 
 class UserModel extends HiveObject {
   @HiveField(0)
   final String username;
@@ -11,7 +11,6 @@ class UserModel extends HiveObject {
   @HiveField(1)
   final String password;
   
-  // Hardcode values akan disimpan di sini saat registrasi (jika tidak diinput user)
   @HiveField(2)
   final String? name; 
   
@@ -29,6 +28,4 @@ class UserModel extends HiveObject {
     this.photoBase64,
   });
 
-  // Catatan: toMap() dan fromMap() tidak lagi diperlukan jika menggunakan HiveObject
-  // dan mendaftarkan adapter.
 }

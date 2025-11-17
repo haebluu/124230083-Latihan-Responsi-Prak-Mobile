@@ -54,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            //  // Optional: for visual reference
             const Text(
               'MyAnime',
               style: TextStyle(
